@@ -15,57 +15,55 @@ A step-by-step guide to learn Flask with databases - from basic SQLite to produc
 | **part-3** | SQLAlchemy ORM | Flask-SQLAlchemy ORM integration with models and relationships |
 | **part-4** | REST API | REST API with Flask for database operations (JSON responses) |
 | **part-5** | Production DB | Switching to PostgreSQL/MySQL with environment configuration |
+| **part-6** | Homework | Product Inventory App - Apply everything you learned |
 
 ## Difficulty Progression
 
 ```
-Easy ────────────────────────────────► Advanced
+Easy ────────────────────────────────────► Advanced
 
-part-1 → part-2 → part-3 → part-4 → part-5
-SQLite   CRUD     ORM      API      PostgreSQL
+part-1 → part-2 → part-3 → part-4 → part-5 → part-6
+SQLite   CRUD     ORM      API      PostgreSQL  Homework
 ```
 
-## Quick Start
+---
 
+## Instructions
+
+Read this README.md for overview.
+
+Create virtual environment:
 ```bash
-# Clone repository
-git clone <repo-url>
-cd flask-database-starter
-
-# Create virtual environment
 python -m venv venv
+```
 
-# Activate virtual environment
+Activate venv and install dependencies:
+```bash
 # Windows:
 venv\Scripts\activate
+
 # Mac/Linux:
 source venv/bin/activate
 
-# Install base dependencies
+# Install:
 pip install flask flask-sqlalchemy
-
-# Start with part-1
-cd part-1
-python app.py
 ```
 
-## Installation by Part
+Read each `part-X/README.md` → Run `python app.py` → Test all routes.
 
+**Homework:** Open `part-6/Instruction.md` — read the full requirements → Complete homework.
+
+Stage and commit:
 ```bash
-# Part 1-2: Basic Flask
-pip install flask
-
-# Part 3: SQLAlchemy ORM
-pip install flask-sqlalchemy
-
-# Part 4: REST API
-# (No additional packages needed)
-
-# Part 5: Production Databases
-pip install psycopg2-binary  # PostgreSQL
-pip install pymysql          # MySQL
-pip install python-dotenv    # Environment variables
+git add . && git commit -m "Completed Flask Database exercises"
 ```
+
+Push to your repo:
+```bash
+git push -u origin main
+```
+
+---
 
 ## Folder Structure
 
@@ -87,12 +85,17 @@ flask-database-starter/
 ├── part-4/                 <- REST API
 │   ├── app.py
 │   └── README.md
-└── part-5/                 <- PostgreSQL/MySQL
+├── part-5/                 <- PostgreSQL/MySQL
+│   ├── app.py
+│   ├── .env.example
+│   ├── templates/
+│   └── README.md
+└── part-6/                 <- Homework
     ├── app.py
-    ├── .env.example
-    ├── templates/
-    └── README.md
+    └── Instruction.md
 ```
+
+---
 
 ## Key Concepts Covered
 
@@ -133,11 +136,3 @@ pip install flask flask-sqlalchemy
 ```bash
 # Close other connections or restart the app
 ```
-
-## Next Steps After This Course
-
-1. Learn Flask Blueprints for larger apps
-2. Add unit testing with pytest
-3. Deploy to Heroku/Railway/Render
-4. Learn Docker for containerization
-5. Add Redis for caching
