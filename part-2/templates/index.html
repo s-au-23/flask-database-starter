@@ -61,6 +61,16 @@
     {% else %}
         <p class="empty">No students yet. Click "Add New Student" to create one!</p>
     {% endif %}
+    <h2>Student List</h2>
+
+<!-- SEARCH FORM -->
+<form method="get" action="/">
+    <input type="text" name="q" placeholder="Search by name, email, course"
+           value="{{ search_query or '' }}">
+    <button type="submit">Search</button>
+    <a href="/">Clear</a>
+</form>
+
 
     <hr>
     <p><strong>CRUD Operations:</strong> Create (Add) | Read (List) | Update (Edit) | Delete</p>

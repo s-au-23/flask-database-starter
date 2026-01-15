@@ -70,13 +70,28 @@ def add_student():
 # =============================================================================
 # READ - Display all students
 # =============================================================================
-
 @app.route('/')
 def index():
+    search_query = request.args.get('q')  # Get search keyword from URL
+
     conn = get_db_connection()
-    students = conn.execute('SELECT * FROM students ORDER BY id DESC').fetchall()  # Newest first
+
+    if search_query:
+        students = conn.execute(
+            '''
+            SELECT * FROM students
+            WHERE name LIKE ? OR email LIKE ? OR course LIKE ?
+            ORDER BY id DESC
+            ''',
+            (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%')
+        ).fetchall()
+    else:
+        students = conn.execute(
+            'SELECT * FROM students ORDER BY id DESC'
+        ).fetchall()
+
     conn.close()
-    return render_template('index.html', students=students)
+    return render_template('index.html', students=students, search_query=search_query)
 
 
 # =============================================================================
