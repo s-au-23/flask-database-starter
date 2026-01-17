@@ -4,13 +4,13 @@
     <title>Part 3 - Flask-SQLAlchemy ORM</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; background: #f0f4f8; }
-        h1 { color: #2c3e50; }
+        h1 { color: #2c3550; }
         nav { margin-bottom: 20px; }
         nav a { margin-right: 15px; color: #3498db; text-decoration: none; font-weight: bold; }
         nav a:hover { text-decoration: underline; }
         table { border-collapse: collapse; width: 100%; background: white; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #9b59b6; color: white; }
+        th { background-color: #6c59b6; color: white; }
         tr:nth-child(even) { background-color: #f2f2f2; }
         .btn { display: inline-block; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin: 2px; }
         .btn-add { background: #27ae60; color: white; padding: 12px 24px; }
@@ -21,16 +21,20 @@
         .flash.danger { background: #f8d7da; color: #721c24; }
         .empty { color: #888; font-style: italic; }
         .course-badge { background: #9b59b6; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; }
+        .course-badge.none { background: #95a5a6; }
     </style>
 </head>
+
 <body>
     <h1>Student Management (Part 3 - SQLAlchemy ORM)</h1>
 
     <nav>
         <a href="{{ url_for('index') }}">Students</a>
         <a href="{{ url_for('courses') }}">Courses</a>
+        <a href="{{ url_for('add_student') }}">Add Student</a>
     </nav>
 
+    <!-- FLASH MESSAGES -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -50,16 +54,29 @@
                 <th>Course</th>
                 <th>Actions</th>
             </tr>
+
             {% for student in students %}
             <tr>
-                <td>{{ student.id }}</td>  <!-- ORM uses dot notation! -->
+                <td>{{ student.id }}</td>
                 <td>{{ student.name }}</td>
                 <td>{{ student.email }}</td>
-                <td><span class="course-badge">{{ student.course.name }}</span></td>  <!-- Access related course! -->
+
+                <td>
+                    {% if student.course %}
+                        <span class="course-badge">{{ student.course.name }}</span>
+                    {% else %}
+                        <span class="course-badge none">No Course</span>
+                    {% endif %}
+                </td>
+
                 <td>
                     <a href="{{ url_for('edit_student', id=student.id) }}" class="btn btn-edit">Edit</a>
-                    <a href="{{ url_for('delete_student', id=student.id) }}" class="btn btn-delete"
-                       onclick="return confirm('Delete this student?')">Delete</a>
+
+                   <a href="{{ url_for('delete_student', id=student.id) }}"
+                    class="btn btn-danger"
+                    onclick="return confirm('Are you sure?')">
+                    Delete</a>
+
                 </td>
             </tr>
             {% endfor %}
@@ -69,6 +86,10 @@
     {% endif %}
 
     <hr>
-    <p><strong>Notice:</strong> We use <code>student.course.name</code> to access the related course - that's the power of ORM relationships!</p>
+    <p>
+        <strong>Notice:</strong>
+        We use <code>student.course</code> safely inside the loop —
+        SQLAlchemy ORM relationships are working correctly.
+    </p>
 </body>
 </html>
