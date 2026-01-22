@@ -13,7 +13,7 @@ What You'll Learn:
 Prerequisites: Complete part-3 (SQLAlchemy)
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -52,14 +52,52 @@ class Book(db.Model):
 # =============================================================================
 
 # GET /api/books - Get all books
+from sqlalchemy import asc, desc
+
 @app.route('/api/books', methods=['GET'])
 def get_books():
-    books = Book.query.all()
-    return jsonify({  # Return JSON response
+    # Pagination
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+
+    # Sorting
+    sort_by = request.args.get('sort', 'id')
+    order = request.args.get('order', 'asc')
+
+    # Allowed columns (security reason)
+    allowed_sort_columns = ['id', 'title', 'author', 'year', 'created_at']
+
+    if sort_by not in allowed_sort_columns:
+        sort_by = 'id'
+
+    sort_column = getattr(Book, sort_by)
+
+    if order == 'desc':
+        query = Book.query.order_by(desc(sort_column))
+    else:
+        query = Book.query.order_by(asc(sort_column))
+
+    pagination = query.paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+
+    books = pagination.items
+
+    return jsonify({
         'success': True,
-        'count': len(books),
-        'books': [book.to_dict() for book in books]  # List comprehension to convert all
+        'page': page,
+        'per_page': per_page,
+        'sort': sort_by,
+        'order': order,
+        'total_books': pagination.total,
+        'total_pages': pagination.pages,
+        'books': [book.to_dict() for book in books]
     })
+@app.route("/books-ui")
+def books_ui():
+    return render_template("books.html")
 
 
 # GET /api/books/<id> - Get single book
@@ -203,82 +241,14 @@ def search_books():
 
 @app.route('/')
 def index():
-    return '''
-    <html>
-    <head>
-        <title>Part 4 - REST API</title>
-        <style>
-            body { font-family: Arial, sans-serif; margin: 40px; background: #1a1a2e; color: #eee; }
-            h1 { color: #e94560; }
-            .endpoint { background: #16213e; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #e94560; }
-            .method { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
-            .get { background: #27ae60; }
-            .post { background: #f39c12; }
-            .put { background: #3498db; }
-            .delete { background: #e74c3c; }
-            code { background: #0f3460; padding: 2px 6px; border-radius: 3px; }
-            pre { background: #0f3460; padding: 15px; border-radius: 8px; overflow-x: auto; }
-            a { color: #e94560; }
-        </style>
-    </head>
-    <body>
-        <h1>Part 4: REST API Demo</h1>
-        <p>This is a JSON API - use curl, Postman, or JavaScript fetch() to test!</p>
-
-        <h2>API Endpoints:</h2>
-
-        <div class="endpoint">
-            <span class="method get">GET</span>
-            <code>/api/books</code> - Get all books
-            <br><a href="/api/books" target="_blank">Try it →</a>
-        </div>
-
-        <div class="endpoint">
-            <span class="method get">GET</span>
-            <code>/api/books/&lt;id&gt;</code> - Get single book
-        </div>
-
-        <div class="endpoint">
-            <span class="method post">POST</span>
-            <code>/api/books</code> - Create new book
-        </div>
-
-        <div class="endpoint">
-            <span class="method put">PUT</span>
-            <code>/api/books/&lt;id&gt;</code> - Update book
-        </div>
-
-        <div class="endpoint">
-            <span class="method delete">DELETE</span>
-            <code>/api/books/&lt;id&gt;</code> - Delete book
-        </div>
-
-        <div class="endpoint">
-            <span class="method get">GET</span>
-            <code>/api/books/search?q=&lt;title&gt;&author=&lt;name&gt;</code> - Search books
-        </div>
-
-        <h2>Test with curl:</h2>
-        <pre>
-# Get all books
-curl http://localhost:5000/api/books
-
-# Create a book
-curl -X POST http://localhost:5000/api/books \\
-  -H "Content-Type: application/json" \\
-  -d '{"title": "Flask Web Development", "author": "Miguel Grinberg", "year": 2018}'
-
-# Update a book
-curl -X PUT http://localhost:5000/api/books/1 \\
-  -H "Content-Type: application/json" \\
-  -d '{"year": 2023}'
-
-# Delete a book
-curl -X DELETE http://localhost:5000/api/books/1
-        </pre>
-    </body>
-    </html>
-    '''
+    return jsonify({
+        "message": "REST API is running",
+        "endpoints": [
+            "/api/books",
+            "/api/books/<id>",
+            "/api/books/search"
+        ]
+    })
 
 
 # =============================================================================

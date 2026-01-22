@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="light">
+
+<header>
+    <h1>📊 Dashboard</h1>
+    <a href="/"><button>⬅️ Back</button></a>
+</header>
+
+<section class="stats">
+    <div class="stat-card">
+        <h2 id="totalBooks">0</h2>
+        <p>Total Books</p>
+    </div>
+    <div class="stat-card">
+        <h2 id="totalAuthors">0</h2>
+        <p>Authors</p>
+    </div>
+</section>
+
+<section class="chart-box">
+    <canvas id="chart"></canvas>
+</section>
+
+<script>
+fetch('/api/stats')
+.then(res => res.json())
+.then(data => {
+    document.getElementById('totalBooks').innerText = data.total_books;
+    document.getElementById('totalAuthors').innerText = data.authors;
+
+    new Chart(document.getElementById('chart'), {
+        type: 'bar',
+        data: {
+            labels: ['Books', 'Authors'],
+            datasets: [{
+                label: 'Count',
+                data: [data.total_books, data.authors],
+                backgroundColor: ['#4CAF50','#2196F3']
+            }]
+        }
+    });
+});
+</script>
+
+</body>
+</html>

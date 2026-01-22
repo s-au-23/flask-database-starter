@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Books Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #e5e7eb;
+    --accent: #38bdf8;
+}
+.light {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #0f172a;
+    --accent: #2563eb;
+}
+
+* { box-sizing: border-box; font-family: Segoe UI, sans-serif; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.toggle {
+    background: var(--accent);
+    color: #fff;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+}
+
+input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+}
+
+.books {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 15px;
+}
+
+.card {
+    background: var(--card);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.card h3 {
+    margin: 0;
+    color: var(--accent);
+}
+
+.actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+.delete { background: #ef4444; color: #fff; }
+.edit { background: #facc15; }
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+}
+
+.modal-content input {
+    width: 100%;
+    margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+    <h2>📚 Books Manager</h2>
+    <button class="toggle" onclick="toggleTheme()">🌙 / ☀️</button>
+</header>
+
+<div class="controls">
+    <input id="title" placeholder="Title">
+    <input id="author" placeholder="Author">
+    <input id="year" placeholder="Year">
+    <button onclick="addBook()">Add</button>
+    <button onclick="loadBooks()">Load</button>
+</div>
+
+<div id="books" class="books"></div>
+
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal" id="editModal">
+    <div class="modal-content">
+        <h3>Edit Book</h3>
+        <input id="editTitle">
+        <input id="editAuthor">
+        <input id="editYear">
+        <button onclick="saveEdit()">Save</button>
+        <button onclick="closeModal()">Cancel</button>
+    </div>
+</div>
+
+<script>
+let editId = null;
+
+function loadBooks() {
+    fetch('/api/books')
+    .then(r => r.json())
+    .then(data => {
+        const box = document.getElementById('books');
+        box.innerHTML = '';
+        data.books.forEach(b => {
+            box.innerHTML += `
+            <div class="card">
+                <h3>${b.title}</h3>
+                <p>${b.author}</p>
+                <p>${b.year || 'N/A'}</p>
+                <div class="actions">
+                    <button class="edit" onclick="openEdit(${b.id}, '${b.title}', '${b.author}', '${b.year || ''}')">✏️</button>
+                    <button class="delete" onclick="deleteBook(${b.id})">🗑️</button>
+                </div>
+            </div>`;
+        });
+    });
+}
+
+function addBook() {
+    fetch('/api/books', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+            title: title.value,
+            author: author.value,
+            year: year.value
+        })
+    }).then(() => loadBooks());
+}
+
+function deleteBook(id) {
+    fetch(`/api/books/${id}`, { method:'DELETE' })
+    .then(() => loadBooks());
+}
+
+function openEdit(id,t,a,y) {
+    editId = id;
+    editTitle.value = t;
+    editAuthor.value = a;
+    editYear.value = y;
+    editModal.style.display = 'flex';
+}
+
+function saveEdit() {
+    fetch(`/api/books/${editId}`, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+            title: editTitle.value,
+            author: editAuthor.value,
+            year: editYear.value
+        })
+    }).then(() => {
+        closeModal();
+        loadBooks();
+    });
+}
+
+function closeModal() {
+    editModal.style.display = 'none';
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('light');
+}
+</script>
+
+</body>
+</html>
