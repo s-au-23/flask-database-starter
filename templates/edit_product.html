@@ -1,0 +1,8 @@
+<form method="post">
+  <input name="name" value="{{ product.name }}">
+  <input name="price" value="{{ product.price }}">
+  <button>Update</button>
+</form>
+{% extends "base.html" %}
+{% block title %}Edit Product{% endblock %}
+{% block content %}
