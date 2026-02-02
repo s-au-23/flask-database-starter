@@ -14,11 +14,6 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
     
-class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(150), nullable=False)
-    price = db.Column(db.Float, nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     
